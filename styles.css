@@ -7,6 +7,7 @@
     --accent-green: #00D57B;
     --accent-red: #FF3B69;
     --accent-gold: #FFB300;
+    --accent-blue: #2970FF;
     --border-color: #222B38;
 }
 
@@ -28,12 +29,25 @@ h1 { font-size: 32px; font-weight: 800; margin-top: 10px; }
 .btn-refresh { background: #1E2532; color: var(--text-primary); border: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
 .btn-refresh:hover { background: #2A3444; }
 
-.dashboard-hero { background: linear-gradient(145deg, #1A202A 0%, #11151D 100%); border: 1px solid var(--border-color); border-radius: 24px; padding: 30px; text-align: center; margin-bottom: 40px; }
+.dashboard-hero { background: linear-gradient(145deg, #1A202A 0%, #11151D 100%); border: 1px solid var(--border-color); border-radius: 24px; padding: 30px; text-align: center; margin-bottom: 30px; }
 .total-label { color: var(--text-secondary); font-size: 14px; font-weight: 600; text-transform: uppercase; }
 .total-balance { font-size: 48px; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
 .total-pnl { display: inline-block; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 16px; }
 .total-pnl.positive { background: rgba(0, 213, 123, 0.1); color: var(--accent-green); }
 .total-pnl.negative { background: rgba(255, 59, 105, 0.1); color: var(--accent-red); }
+
+/* NUEVOS MÓDULOS EXTRA */
+.modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+.module-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; }
+.module-card h3 { font-size: 18px; margin-bottom: 15px; color: var(--text-primary); }
+
+.chart-container { position: relative; height: 220px; width: 100%; display: flex; justify-content: center; }
+
+.simulator-display { font-size: 32px; font-weight: 800; color: var(--accent-blue); margin: 15px 0; }
+input[type=range] { width: 100%; accent-color: var(--accent-blue); cursor: pointer; }
+.btn-outline { background: transparent; border: 1px solid #323D4D; color: var(--text-primary); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+.btn-outline:hover { background: rgba(255,255,255,0.05); }
+.simulator-card.active { border-color: var(--accent-blue); box-shadow: 0 0 20px rgba(41, 112, 255, 0.1); }
 
 .section-title { font-size: 20px; margin-bottom: 20px; color: var(--text-secondary); }
 .crypto-grid { display: grid; gap: 16px; }
@@ -59,6 +73,7 @@ h1 { font-size: 32px; font-weight: 800; margin-top: 10px; }
 
 @media (max-width: 600px) {
     .total-balance { font-size: 38px; }
+    .modules-grid { grid-template-columns: 1fr; }
     .financial-data { grid-template-columns: 1fr; }
     .trend-tag { position: relative; top: 0; right: 0; display: inline-block; margin-bottom: 15px; }
 }
