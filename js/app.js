@@ -44,7 +44,7 @@ async function fetchLivePrices() {
 async function loadPortfolio() {
     try {
         // FIX: Buscamos el archivo directamente en la carpeta raíz
-        const response = await fetch("portfolio.json"); 
+        const response = await fetch("data/portfolio.json");
         
         if (!response.ok) throw new Error("Archivo no encontrado (Error 404)");
         
