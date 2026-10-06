@@ -1,5 +1,5 @@
 // ============================================================
-// CRYPTO CONTROL V6.1 - FIX CACHÉ Y LIBRERÍAS
+// CRYPTO CONTROL V7.0 - PESTAÑAS + GRÁFICOS DE LÍNEA HISTÓRICOS
 // ============================================================
 
 const portfolio = {
@@ -19,10 +19,19 @@ let changes24h = { BTC: 0, ETH: 0, SOL: 0, ADA: 0, BNB: 0 };
 let isSimulating = false;
 let portfolioChart = null;
 
+// Variables Históricos
+let historyPortChart = null;
+let historyCoinChart = null;
+let historicalDataRaw = {}; 
+let historyDates = [];
+
 function formatCurrency(value) {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 }
 
+// ==========================================
+// PESTAÑA 1: DATOS EN VIVO
+// ==========================================
 async function fetchLivePrices() {
     try {
         const symbolsArray = JSON.stringify(Object.values(binanceSymbols));
@@ -48,13 +57,13 @@ async function fetchLivePrices() {
         
         renderDashboard();
     } catch (error) {
-        console.error("Error API:", error);
+        console.error("Error API En Vivo:", error);
     }
 }
 
 function renderDashboard() {
     renderKPIs();
-    renderChart();
+    renderDoughnutChart();
     renderCoins();
 }
 
@@ -86,23 +95,14 @@ function renderKPIs() {
     `;
 }
 
-function renderChart() {
+function renderDoughnutChart() {
     try {
-        const canvas = document.getElementById('portfolioChart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        
-        let labels = [];
-        let dataValues = [];
-        let bgColors = [];
+        const ctx = document.getElementById('portfolioChart').getContext('2d');
+        let labels = [], dataValues = [], bgColors = [];
 
         Object.keys(portfolio.balances).forEach(coin => {
             const val = portfolio.balances[coin] * (displayPrices[coin] || 0);
-            if (val > 0) {
-                labels.push(coin);
-                dataValues.push(val);
-                bgColors.push(coinColors[coin]);
-            }
+            if (val > 0) { labels.push(coin); dataValues.push(val); bgColors.push(coinColors[coin]); }
         });
 
         if (portfolioChart) {
@@ -111,24 +111,11 @@ function renderChart() {
         } else {
             portfolioChart = new Chart(ctx, {
                 type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{ data: dataValues, backgroundColor: bgColors, borderWidth: 0, hoverOffset: 5 }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: '#8492A6', padding: 15, font: { size: 12 } } },
-                        tooltip: { callbacks: { label: function(context) { return ' ' + formatCurrency(context.raw); } } }
-                    },
-                    cutout: '70%'
-                }
+                data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: bgColors, borderWidth: 0, hoverOffset: 5 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#8492A6', padding: 15 } } }, cutout: '70%' }
             });
         }
-    } catch (e) {
-        console.error("Error graficando:", e);
-    }
+    } catch (e) { console.error("Error graficando:", e); }
 }
 
 function renderCoins() {
@@ -164,22 +151,10 @@ function renderCoins() {
                     </div>
                 </div>
                 <div class="financial-data">
-                    <div class="data-box">
-                        <span class="data-label">Plata que metiste</span>
-                        <span class="data-value">${formatCurrency(balance * avgPrice)}</span>
-                    </div>
-                    <div class="data-box">
-                        <span class="data-label">Máximo histórico</span>
-                        <span class="data-value ath">${formatCurrency(balance * historicalATH[coin])}</span>
-                    </div>
-                    <div class="data-box">
-                        <span class="data-label">Saldo Actual</span>
-                        <span class="data-value highlight">${currentPrice > 0 ? formatCurrency(balance * currentPrice) : "..."}</span>
-                    </div>
-                    <div class="data-box">
-                        <span class="data-label">P/L vs Promedio</span>
-                        <span class="data-value ${pnlClass}">${sign}${pnlPct.toFixed(2)}%</span>
-                    </div>
+                    <div class="data-box"><span class="data-label">Plata que metiste</span><span class="data-value">${formatCurrency(balance * avgPrice)}</span></div>
+                    <div class="data-box"><span class="data-label">Máximo histórico</span><span class="data-value ath">${formatCurrency(balance * historicalATH[coin])}</span></div>
+                    <div class="data-box"><span class="data-label">Saldo Actual</span><span class="data-value highlight">${currentPrice > 0 ? formatCurrency(balance * currentPrice) : "..."}</span></div>
+                    <div class="data-box"><span class="data-label">P/L vs Promedio</span><span class="data-value ${pnlClass}">${sign}${pnlPct.toFixed(2)}%</span></div>
                 </div>
             </div>
         `;
@@ -188,18 +163,171 @@ function renderCoins() {
     document.getElementById("cards").innerHTML = html;
 }
 
+// ==========================================
+// PESTAÑA 2: LÓGICA HISTÓRICA (NUEVO)
+// ==========================================
+async function fetchHistoricalData(days = 90) {
+    try {
+        const promises = Object.values(binanceSymbols).map(symbol => 
+            fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1d&limit=${days}`)
+            .then(res => res.json())
+            .then(data => ({ symbol, data }))
+        );
+
+        const results = await Promise.all(promises);
+        
+        // Extraer fechas de BTC (Todos tienen las mismas)
+        const btcData = results.find(r => r.symbol === 'BTCUSDT').data;
+        historyDates = btcData.map(k => {
+            const date = new Date(k[0]);
+            return `${date.getDate()}/${date.getMonth()+1}`;
+        });
+
+        // Extraer precios de cierre
+        results.forEach(res => {
+            const coin = Object.keys(binanceSymbols).find(k => binanceSymbols[k] === res.symbol);
+            historicalDataRaw[coin] = res.data.map(k => Number(k[4]));
+        });
+
+        renderHistoryCharts();
+    } catch (error) {
+        console.error("Error obteniendo datos históricos:", error);
+    }
+}
+
+function renderHistoryCharts() {
+    // 1. Chart de Portfolio (Capital Total)
+    let portfolioHistory = [];
+    for (let i = 0; i < historyDates.length; i++) {
+        let dailyTotal = 0;
+        Object.keys(portfolio.balances).forEach(coin => {
+            dailyTotal += portfolio.balances[coin] * historicalDataRaw[coin][i];
+        });
+        portfolioHistory.push(dailyTotal);
+    }
+
+    const ctxPort = document.getElementById('historyPortChart').getContext('2d');
+    
+    // Crear un gradiente azul fachero
+    let gradientBlue = ctxPort.createLinearGradient(0, 0, 0, 300);
+    gradientBlue.addColorStop(0, 'rgba(41, 112, 255, 0.4)');
+    gradientBlue.addColorStop(1, 'rgba(41, 112, 255, 0.0)');
+
+    if (historyPortChart) {
+        historyPortChart.data.labels = historyDates;
+        historyPortChart.data.datasets[0].data = portfolioHistory;
+        historyPortChart.update();
+    } else {
+        historyPortChart = new Chart(ctxPort, {
+            type: 'line',
+            data: {
+                labels: historyDates,
+                datasets: [{
+                    label: 'Valor de Cartera (USDT)',
+                    data: portfolioHistory,
+                    borderColor: '#2970FF',
+                    backgroundColor: gradientBlue,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHitRadius: 10
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                scales: {
+                    x: { grid: { display: false, color: '#222B38' }, ticks: { color: '#8492A6' } },
+                    y: { grid: { color: '#222B38' }, ticks: { color: '#8492A6', callback: function(val) { return '$' + val; } } }
+                }
+            }
+        });
+    }
+
+    // 2. Chart por Moneda (Select)
+    const selectedCoin = document.getElementById('history-coin-select').value;
+    const coinData = historicalDataRaw[selectedCoin];
+    const ctxCoin = document.getElementById('historyCoinChart').getContext('2d');
+    
+    if (historyCoinChart) {
+        historyCoinChart.data.labels = historyDates;
+        historyCoinChart.data.datasets[0].data = coinData;
+        historyCoinChart.data.datasets[0].borderColor = coinColors[selectedCoin];
+        historyCoinChart.data.datasets[0].label = `Precio ${selectedCoin} (USDT)`;
+        historyCoinChart.update();
+    } else {
+        historyCoinChart = new Chart(ctxCoin, {
+            type: 'line',
+            data: {
+                labels: historyDates,
+                datasets: [{
+                    label: `Precio ${selectedCoin} (USDT)`,
+                    data: coinData,
+                    borderColor: coinColors[selectedCoin],
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    pointHitRadius: 10
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#8492A6' } },
+                    y: { grid: { color: '#222B38' }, ticks: { color: '#8492A6', callback: function(val) { return '$' + val; } } }
+                }
+            }
+        });
+    }
+}
+
+// ==========================================
+// CONTROLADORES DE INTERFAZ (BOTONES, SLIDERS, TABS)
+// ==========================================
+
+// Pestañas
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        
+        // Si entra a la pestaña histórico y no hay datos, los busca
+        if (btn.dataset.tab === 'tab-history' && historyDates.length === 0) {
+            fetchHistoricalData(90); // Default 3 meses
+        }
+    });
+});
+
+// Filtros de tiempo Histórico
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const days = Number(btn.dataset.days);
+        fetchHistoricalData(days);
+    });
+});
+
+// Selector de Moneda
+document.getElementById('history-coin-select').addEventListener('change', () => {
+    renderHistoryCharts();
+});
+
+// Simulador
 document.getElementById('btc-slider').addEventListener('input', (e) => {
     if (realPrices.BTC === 0) return;
     isSimulating = true;
     document.querySelector('.simulator-card').classList.add('active');
-    
     const simBtc = Number(e.target.value);
     document.getElementById('sim-price-display').textContent = formatCurrency(simBtc);
     document.getElementById('sim-price-display').style.color = "#2970FF";
-    
     const multiplier = simBtc / realPrices.BTC;
     Object.keys(realPrices).forEach(coin => displayPrices[coin] = realPrices[coin] * multiplier);
-    
     renderDashboard();
 });
 
@@ -218,5 +346,6 @@ document.getElementById("refresh").addEventListener("click", (e) => {
     fetchLivePrices().then(() => setTimeout(() => e.target.textContent = "↻ Sincronizar", 1000));
 });
 
+// ARRANQUE
 fetchLivePrices();
 setInterval(fetchLivePrices, 10000);
