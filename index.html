@@ -3,35 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Control - Dashboard</title>
+    <title>Mi Cartera Fiwind</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Fuente moderna de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <main>
-        <header>
-            <div>
-                <p class="eyebrow">FIWIND · CARTERA PERSONAL</p>
-                <h1>Crypto Control</h1>
-                <p class="muted">Precio actual → compras históricas → promedio → recuperación</p>
+        <header class="app-header">
+            <div class="header-titles">
+                <span class="badge">PROYECCIÓN 2027</span>
+                <h1>Mi Billetera</h1>
             </div>
+            <button id="refresh" class="btn-refresh">↻ Actualizar</button>
         </header>
 
-        <!-- KPI GENERALES -->
-        <section id="kpis" class="kpis"></section>
-
-        <!-- BARRA DE HERRAMIENTAS -->
-        <section class="toolbar">
-            <div>
-                <b>Precios en vivo (API Binance)</b>
-                <span class="muted" style="display: block; margin-top: 4px; font-size: 13px;">
-                    Se actualizan automáticamente cada 30 segundos.
-                </span>
-            </div>
-            <button id="refresh" type="button">Actualizar Ahora</button>
-        </section>
+        <!-- RESUMEN PRINCIPAL (Total y Rendimiento) -->
+        <section id="kpis" class="dashboard-hero"></section>
 
         <!-- TARJETAS DE MONEDAS -->
-        <section id="cards" class="cards"></section>
+        <h2 class="section-title">Tus Activos</h2>
+        <section id="cards" class="crypto-grid"></section>
     </main>
 
     <script src="js/app.js"></script>
