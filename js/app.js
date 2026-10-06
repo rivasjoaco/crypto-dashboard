@@ -1,25 +1,24 @@
 // ============================================================
-// CRYPTO CONTROL V4.0 - API AUTOMÁTICA Y DATOS FINANCIEROS
+// CRYPTO CONTROL V4.0 - FIX RUTAS Y DATOS FINANCIEROS
 // ============================================================
 
 const coinNames = { BTC: "Bitcoin", ETH: "Ethereum", SOL: "Solana", ADA: "Cardano", BNB: "BNB" };
 const binanceSymbols = { BTC: "BTCUSDT", ETH: "ETHUSDT", SOL: "SOLUSDT", ADA: "ADAUSDT", BNB: "BNBUSDT" };
 
-// Estos son los precios máximos que llegaron a tener estas monedas en tu mejor momento (2025)
+// ATH Históricos de tu cartera en 2025
 const historicalATH = { BTC: 108731, ETH: 4314, SOL: 234.54, ADA: 1.079, BNB: 710.92 };
 
 let portfolio = null;
 let prices = {};
-let changes24h = {}; // Guarda si la moneda saltó o cayó en el día
+let changes24h = {}; 
 
 function formatCurrency(value) {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 }
 
-// 1. CONEXIÓN A LA API DE BINANCE (TRAE PRECIO Y SALTO 24HS)
+// 1. CONEXIÓN A LA API DE BINANCE
 async function fetchLivePrices() {
     try {
-        // Pedimos la data de las últimas 24hs
         const symbolsArray = JSON.stringify(Object.values(binanceSymbols));
         const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbolsArray)}`;
         
@@ -41,18 +40,23 @@ async function fetchLivePrices() {
     }
 }
 
-// 2. CARGAR TU ARCHIVO JSON
+// 2. CARGAR TU ARCHIVO JSON (CORREGIDO)
 async function loadPortfolio() {
     try {
-        const response = await fetch("data/portfolio.json");
+        // FIX: Buscamos el archivo directamente en la carpeta raíz
+        const response = await fetch("portfolio.json"); 
+        
+        if (!response.ok) throw new Error("Archivo no encontrado (Error 404)");
+        
         portfolio = await response.json();
         Object.keys(portfolio.balances).forEach(coin => { prices[coin] = 0; changes24h[coin] = 0; });
         
         renderDashboard();
         await fetchLivePrices();
-        setInterval(fetchLivePrices, 10000); // Se auto-actualiza cada 10 segundos
+        setInterval(fetchLivePrices, 10000); 
     } catch (error) {
-        document.getElementById("cards").innerHTML = `<h3 style="color:red">Error cargando portfolio.json</h3>`;
+        console.error("Error al cargar JSON:", error);
+        document.getElementById("cards").innerHTML = `<h3 style="color:var(--accent-red); padding: 20px;">Error al leer portfolio.json.<br><small style="color:var(--text-secondary); font-size:14px;">Asegurate de que el archivo se llame exactamente "portfolio.json" (todo en minúsculas) y esté en la misma carpeta que el index.html.</small></h3>`;
     }
 }
 
@@ -83,7 +87,7 @@ function renderKPIs() {
                 Rendimiento Neto: ${sign}${formatCurrency(result)} (${sign}${resultPct.toFixed(2)}%)
             </div>
             <div style="margin-top: 15px; font-size:13px; color: var(--text-secondary);">
-                Capital Inyectado de tu bolsillo: <b>${formatCurrency(totalInvested)}</b>
+                Capital inyectado de tu bolsillo: <b>${formatCurrency(totalInvested)}</b>
             </div>
         ` : ""}
     `;
@@ -97,12 +101,10 @@ function renderCoins() {
         const currentPrice = prices[coin] || 0;
         const change24 = changes24h[coin] || 0;
         
-        // Cálculos que pediste
-        const totalInvested = balance * avgPrice; // Cuánta plata metiste en esta moneda
-        const currentVal = balance * currentPrice; // Cuánta plata tenés ahora
-        const maxHistoricalVal = balance * historicalATH[coin]; // Cuánta plata llegaste a tener en el ATH
+        const totalInvested = balance * avgPrice; 
+        const currentVal = balance * currentPrice; 
+        const maxHistoricalVal = balance * historicalATH[coin]; 
         
-        // Etiqueta de tendencia 24hs
         let trendTag = `<div class="trend-tag trend-normal">${change24 > 0 ? '+' : ''}${change24.toFixed(1)}% hoy</div>`;
         if (change24 >= 5) trendTag = `<div class="trend-tag trend-fire">🔥 VOLANDO +${change24.toFixed(1)}%</div>`;
         if (change24 <= -5) trendTag = `<div class="trend-tag trend-drop">🔻 CAYENDO ${change24.toFixed(1)}%</div>`;
@@ -153,7 +155,7 @@ function renderCoins() {
 
 document.getElementById("refresh").addEventListener("click", (e) => {
     e.target.textContent = "Sincronizando...";
-    fetchLivePrices().then(() => setTimeout(() => e.target.textContent = "↻ Actualizar", 1000));
+    fetchLivePrices().then(() => setTimeout(() => e.target.textContent = "↻ Sincronizar", 1000));
 });
 
 loadPortfolio();
