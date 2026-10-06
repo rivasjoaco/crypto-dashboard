@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Control | Fiwind</title>
-    <!-- EL TRUCO ?v=3 FUERZA A CARGAR EL NUEVO DISEÑO SÍ O SÍ -->
-    <link rel="stylesheet" href="styles.css?v=3">
+    <link rel="stylesheet" href="styles.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <!-- Librería del Gráfico (Va acá arriba para que cargue primero) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -20,38 +18,87 @@
             <button id="refresh" class="btn-refresh">↻ Sincronizar</button>
         </header>
 
-        <!-- KPI GENERALES -->
-        <section id="kpis" class="dashboard-hero"></section>
+        <!-- SISTEMA DE PESTAÑAS -->
+        <nav class="app-tabs">
+            <button class="tab-btn active" data-tab="tab-dashboard">Resumen Actual</button>
+            <button class="tab-btn" data-tab="tab-history">Análisis Histórico</button>
+        </nav>
 
-        <!-- MÓDULOS (GRÁFICO Y SIMULADOR) -->
-        <div class="modules-grid">
-            <section class="module-card">
-                <h3>Composición de Riesgo</h3>
-                <div class="chart-container">
-                    <canvas id="portfolioChart"></canvas>
+        <!-- ========================================== -->
+        <!-- PESTAÑA 1: RESUMEN ACTUAL (Lo que ya tenías) -->
+        <!-- ========================================== -->
+        <div id="tab-dashboard" class="tab-content active">
+            <section id="kpis" class="dashboard-hero"></section>
+
+            <div class="modules-grid">
+                <section class="module-card">
+                    <h3>Composición de Riesgo</h3>
+                    <div class="chart-container">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="module-card simulator-card">
+                    <h3>Simulador de Escenarios</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">
+                        Deslizá para ver qué pasaría con tu plata si Bitcoin cambia de precio.
+                    </p>
+                    <div class="simulator-display" id="sim-price-display">Calculando...</div>
+                    <input type="range" id="btc-slider" min="20000" max="150000" step="1000" value="85000">
+                    <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                        <span style="font-size: 12px; color: var(--text-secondary);">BTC $20k</span>
+                        <button id="reset-sim" class="btn-outline">Volver a la realidad</button>
+                        <span style="font-size: 12px; color: var(--text-secondary);">BTC $150k</span>
+                    </div>
+                </section>
+            </div>
+
+            <h2 class="section-title">Análisis por Activo</h2>
+            <section id="cards" class="crypto-grid"></section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PESTAÑA 2: HISTÓRICO (NUEVA)               -->
+        <!-- ========================================== -->
+        <div id="tab-history" class="tab-content">
+            <!-- Selector de Tiempo -->
+            <div class="time-filters">
+                <button class="filter-btn" data-days="30">1M</button>
+                <button class="filter-btn active" data-days="90">3M</button>
+                <button class="filter-btn" data-days="180">6M</button>
+                <button class="filter-btn" data-days="365">1A</button>
+            </div>
+
+            <!-- Gráfico de Evolución del Capital -->
+            <section class="module-card history-section">
+                <h3>Evolución de mi Capital (USDT)</h3>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 15px;">
+                    Simula la valorización de tu cartera en el tiempo, asumiendo tus tenencias actuales.
+                </p>
+                <div class="line-chart-container">
+                    <canvas id="historyPortChart"></canvas>
                 </div>
             </section>
 
-            <section class="module-card simulator-card">
-                <h3>Simulador de Escenarios</h3>
-                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">
-                    Deslizá para ver qué pasaría con tu plata si Bitcoin cambia de precio.
-                </p>
-                <div class="simulator-display" id="sim-price-display">Calculando...</div>
-                <input type="range" id="btc-slider" min="20000" max="150000" step="1000" value="85000">
-                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-                    <span style="font-size: 12px; color: var(--text-secondary);">BTC $20k</span>
-                    <button id="reset-sim" class="btn-outline">Volver a la realidad</button>
-                    <span style="font-size: 12px; color: var(--text-secondary);">BTC $150k</span>
+            <!-- Gráfico de Precio por Moneda -->
+            <section class="module-card history-section" style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>Cotización Histórica</h3>
+                    <select id="history-coin-select" class="coin-select">
+                        <option value="BTC">Bitcoin (BTC)</option>
+                        <option value="ETH">Ethereum (ETH)</option>
+                        <option value="SOL">Solana (SOL)</option>
+                        <option value="BNB">Binance (BNB)</option>
+                        <option value="ADA">Cardano (ADA)</option>
+                    </select>
+                </div>
+                <div class="line-chart-container">
+                    <canvas id="historyCoinChart"></canvas>
                 </div>
             </section>
         </div>
 
-        <h2 class="section-title">Análisis por Activo</h2>
-        <section id="cards" class="crypto-grid"></section>
     </main>
-
-    <!-- EL TRUCO ?v=3 FUERZA A CARGAR EL NUEVO CÓDIGO -->
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
