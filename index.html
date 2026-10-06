@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Control | Fiwind</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- EL TRUCO ?v=3 FUERZA A CARGAR EL NUEVO DISEÑO SÍ O SÍ -->
+    <link rel="stylesheet" href="styles.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <!-- Librería para el Gráfico de Torta -->
+    <!-- Librería del Gráfico (Va acá arriba para que cargue primero) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -22,9 +23,8 @@
         <!-- KPI GENERALES -->
         <section id="kpis" class="dashboard-hero"></section>
 
-        <!-- NUEVOS MÓDULOS: GRÁFICO Y SIMULADOR -->
+        <!-- MÓDULOS (GRÁFICO Y SIMULADOR) -->
         <div class="modules-grid">
-            <!-- Módulo 3: Composición de Cartera -->
             <section class="module-card">
                 <h3>Composición de Riesgo</h3>
                 <div class="chart-container">
@@ -32,18 +32,17 @@
                 </div>
             </section>
 
-            <!-- Módulo 2: Simulador What-If -->
             <section class="module-card simulator-card">
                 <h3>Simulador de Escenarios</h3>
-                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 10px;">
-                    Deslizá para ver qué pasaría con tu plata si el precio de Bitcoin cambia (tus otras monedas seguirán la tendencia).
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">
+                    Deslizá para ver qué pasaría con tu plata si Bitcoin cambia de precio.
                 </p>
-                <div class="simulator-display" id="sim-price-display">Cargando...</div>
-                <input type="range" id="btc-slider" min="20000" max="250000" step="1000" value="80000">
+                <div class="simulator-display" id="sim-price-display">Calculando...</div>
+                <input type="range" id="btc-slider" min="20000" max="150000" step="1000" value="85000">
                 <div style="display: flex; justify-content: space-between; margin-top: 15px;">
                     <span style="font-size: 12px; color: var(--text-secondary);">BTC $20k</span>
-                    <button id="reset-sim" class="btn-outline">Volver a precio real</button>
-                    <span style="font-size: 12px; color: var(--text-secondary);">BTC $250k</span>
+                    <button id="reset-sim" class="btn-outline">Volver a la realidad</button>
+                    <span style="font-size: 12px; color: var(--text-secondary);">BTC $150k</span>
                 </div>
             </section>
         </div>
@@ -52,6 +51,7 @@
         <section id="cards" class="crypto-grid"></section>
     </main>
 
-    <script src="app.js"></script>
+    <!-- EL TRUCO ?v=3 FUERZA A CARGAR EL NUEVO CÓDIGO -->
+    <script src="app.js?v=3"></script>
 </body>
 </html>
