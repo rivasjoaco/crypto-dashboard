@@ -6,14 +6,11 @@
     --text-secondary: #8492A6;
     --accent-green: #00D57B;
     --accent-red: #FF3B69;
+    --accent-gold: #FFB300;
     --border-color: #222B38;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     background-color: var(--bg-main);
@@ -22,188 +19,48 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 30px 20px 80px;
-}
+main { max-width: 800px; margin: 0 auto; padding: 30px 20px 80px; }
 
-/* HEADER */
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
+.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.badge { background: rgba(0, 213, 123, 0.15); color: var(--accent-green); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+h1 { font-size: 32px; font-weight: 800; margin-top: 10px; }
 
-.badge {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-}
+.btn-refresh { background: #1E2532; color: var(--text-primary); border: none; padding: 10px 16px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-refresh:hover { background: #2A3444; }
 
-h1 {
-    font-size: 32px;
-    font-weight: 800;
-    margin-top: 10px;
-}
-
-.btn-refresh {
-    background: #1E2532;
-    color: var(--text-primary);
-    border: none;
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-refresh:hover {
-    background: #2A3444;
-}
-
-/* HERO (KPIs Principales) */
-.dashboard-hero {
-    background: linear-gradient(145deg, #1A202A 0%, #11151D 100%);
-    border: 1px solid var(--border-color);
-    border-radius: 24px;
-    padding: 30px;
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.total-label {
-    color: var(--text-secondary);
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.total-balance {
-    font-size: 48px;
-    font-weight: 800;
-    margin: 10px 0;
-    letter-spacing: -1px;
-}
-
-.total-pnl {
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 16px;
-}
-
+.dashboard-hero { background: linear-gradient(145deg, #1A202A 0%, #11151D 100%); border: 1px solid var(--border-color); border-radius: 24px; padding: 30px; text-align: center; margin-bottom: 40px; }
+.total-label { color: var(--text-secondary); font-size: 14px; font-weight: 600; text-transform: uppercase; }
+.total-balance { font-size: 48px; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
+.total-pnl { display: inline-block; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 16px; }
 .total-pnl.positive { background: rgba(0, 213, 123, 0.1); color: var(--accent-green); }
 .total-pnl.negative { background: rgba(255, 59, 105, 0.1); color: var(--accent-red); }
 
-/* GRID DE MONEDAS */
-.section-title {
-    font-size: 20px;
-    margin-bottom: 20px;
-    color: var(--text-secondary);
-}
+.section-title { font-size: 20px; margin-bottom: 20px; color: var(--text-secondary); }
+.crypto-grid { display: grid; gap: 16px; }
+.crypto-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; transition: 0.2s; position: relative; overflow: hidden; }
+.crypto-card:hover { background: var(--bg-card-hover); border-color: #323D4D; }
 
-.crypto-grid {
-    display: grid;
-    gap: 16px;
-}
+/* NUEVO: Etiquetas de salto de precio */
+.trend-tag { position: absolute; top: 20px; right: 20px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; }
+.trend-fire { background: rgba(255, 179, 0, 0.15); color: var(--accent-gold); border: 1px solid rgba(255,179,0,0.3); }
+.trend-drop { background: rgba(255, 59, 105, 0.1); color: var(--accent-red); }
+.trend-normal { background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); }
 
-.crypto-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 20px;
-    transition: 0.2s;
-}
+.card-top { margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+.coin-id h3 { font-size: 24px; margin-bottom: 4px; }
+.coin-id span { color: var(--text-secondary); font-size: 14px; font-weight: 400; }
+.market-price { font-size: 28px; font-weight: 800; margin-top: 10px; }
 
-.crypto-card:hover {
-    background: var(--bg-card-hover);
-    border-color: #323D4D;
-}
+/* NUEVO: Grilla de datos financieros */
+.financial-data { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; }
+.data-box { display: flex; flex-direction: column; gap: 4px; }
+.data-label { color: var(--text-secondary); font-size: 12px; text-transform: uppercase; font-weight: 600; }
+.data-value { font-size: 16px; font-weight: 600; }
+.data-value.highlight { color: var(--text-primary); }
+.data-value.ath { color: var(--accent-gold); }
 
-.card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 16px;
-    margin-bottom: 16px;
-}
-
-.coin-id h3 {
-    font-size: 20px;
-    margin-bottom: 4px;
-}
-
-.coin-id span {
-    color: var(--text-secondary);
-    font-size: 14px;
-    font-weight: 400;
-}
-
-.coin-holding {
-    color: var(--text-secondary);
-    font-size: 14px;
-}
-
-.coin-market {
-    text-align: right;
-}
-
-.market-price {
-    font-size: 22px;
-    font-weight: 800;
-}
-
-.market-pnl {
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 4px;
-}
-
-.market-pnl.positive { color: var(--accent-green); }
-.market-pnl.negative { color: var(--accent-red); }
-
-.card-bottom {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-}
-
-.stat-box {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.stat-box.right {
-    text-align: right;
-}
-
-.stat-label {
-    color: var(--text-secondary);
-}
-
-.stat-value {
-    font-weight: 600;
-}
-
-.recovery-needed {
-    color: var(--accent-green);
-    font-weight: 800;
-}
-
-/* RESPONSIVE CELULAR */
 @media (max-width: 600px) {
     .total-balance { font-size: 38px; }
-    .card-top { flex-direction: column; align-items: flex-start; gap: 15px; }
-    .coin-market { text-align: left; }
-    .card-bottom { flex-direction: column; gap: 15px; }
-    .stat-box.right { text-align: left; }
+    .financial-data { grid-template-columns: 1fr; }
+    .trend-tag { position: relative; top: 0; right: 0; display: inline-block; margin-bottom: 15px; }
 }
