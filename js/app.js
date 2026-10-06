@@ -1,28 +1,45 @@
 // ============================================================
-// CRYPTO CONTROL V4.0 - FIX RUTAS Y DATOS FINANCIEROS
+// CRYPTO CONTROL V5.0 - A PRUEBA DE FALLOS (SIN JSON)
 // ============================================================
+
+// 1. TUS DATOS INTEGRADOS (Ya no usamos portfolio.json)
+const portfolio = {
+    balances: {
+        BTC: 0.06727496,
+        ETH: 1.05404764,
+        SOL: 5.30285393,
+        ADA: 1949.92009588,
+        BNB: 0.44205987
+    },
+    averagePurchasePrice: {
+        BTC: 99569.18,
+        ETH: 3077.91,
+        SOL: 193.13,
+        ADA: 0.86,
+        BNB: 845.03
+    }
+};
 
 const coinNames = { BTC: "Bitcoin", ETH: "Ethereum", SOL: "Solana", ADA: "Cardano", BNB: "BNB" };
 const binanceSymbols = { BTC: "BTCUSDT", ETH: "ETHUSDT", SOL: "SOLUSDT", ADA: "ADAUSDT", BNB: "BNBUSDT" };
-
-// ATH Históricos de tu cartera en 2025
 const historicalATH = { BTC: 108731, ETH: 4314, SOL: 234.54, ADA: 1.079, BNB: 710.92 };
 
-let portfolio = null;
-let prices = {};
-let changes24h = {}; 
+let prices = { BTC: 0, ETH: 0, SOL: 0, ADA: 0, BNB: 0 };
+let changes24h = { BTC: 0, ETH: 0, SOL: 0, ADA: 0, BNB: 0 };
 
 function formatCurrency(value) {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 }
 
-// 1. CONEXIÓN A LA API DE BINANCE
+// 2. CONEXIÓN A LA API DE BINANCE
 async function fetchLivePrices() {
     try {
         const symbolsArray = JSON.stringify(Object.values(binanceSymbols));
         const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbolsArray)}`;
         
         const response = await fetch(url);
+        if (!response.ok) throw new Error("Fallo en la API de Binance");
+        
         const data = await response.json();
 
         data.forEach(ticker => {
@@ -37,26 +54,7 @@ async function fetchLivePrices() {
         renderDashboard();
     } catch (error) {
         console.error("Error obteniendo precios:", error);
-    }
-}
-
-// 2. CARGAR TU ARCHIVO JSON (CORREGIDO)
-async function loadPortfolio() {
-    try {
-        // FIX: Buscamos el archivo directamente en la carpeta raíz
-        const response = await fetch("data/portfolio.json");
-        
-        if (!response.ok) throw new Error("Archivo no encontrado (Error 404)");
-        
-        portfolio = await response.json();
-        Object.keys(portfolio.balances).forEach(coin => { prices[coin] = 0; changes24h[coin] = 0; });
-        
-        renderDashboard();
-        await fetchLivePrices();
-        setInterval(fetchLivePrices, 10000); 
-    } catch (error) {
-        console.error("Error al cargar JSON:", error);
-        document.getElementById("cards").innerHTML = `<h3 style="color:var(--accent-red); padding: 20px;">Error al leer portfolio.json.<br><small style="color:var(--text-secondary); font-size:14px;">Asegurate de que el archivo se llame exactamente "portfolio.json" (todo en minúsculas) y esté en la misma carpeta que el index.html.</small></h3>`;
+        document.getElementById("kpis").innerHTML = `<div class="dashboard-hero"><h3 style="color:var(--accent-red);">Error conectando a Binance. Verificá tu conexión o bloqueador de anuncios.</h3></div>`;
     }
 }
 
@@ -158,4 +156,7 @@ document.getElementById("refresh").addEventListener("click", (e) => {
     fetchLivePrices().then(() => setTimeout(() => e.target.textContent = "↻ Sincronizar", 1000));
 });
 
-loadPortfolio();
+// 5. INICIAR LA APLICACIÓN DIRECTAMENTE
+renderDashboard();
+fetchLivePrices();
+setInterval(fetchLivePrices, 10000); // Se auto-actualiza cada 10 segundos
